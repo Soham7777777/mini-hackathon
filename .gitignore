@@ -1,11 +1,12 @@
 .venv/
 pyenv/
 
-temp.*
 *.pyc
 __pycache__/
+.mypy_cache
+*_cache
 
-instance/
+# instance/
 
 .pytest_cache/
 .coverage
@@ -14,3 +15,11 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# for experimenting with code, writing notes etc...
+temp.*
+temp_*
+
+.vscode
+*.db
+*.sqlite
