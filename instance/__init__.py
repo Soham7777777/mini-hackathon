@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 class DefaultConfiguration:
-    # flask configurations
     DEBUG = False
     TESTING = False
     PROPAGATE_EXCEPTIONS = None
@@ -24,18 +23,18 @@ class DefaultConfiguration:
     MAX_CONTENT_LENGTH = None
     TEMPLATES_AUTO_RELOAD = None
     EXPLAIN_TEMPLATE_LOADING = False
-    MAX_COOKIE_SIZE = 4093
-    # other configurations
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
-
+    MAX_COOKIE_SIZE = 4093    
     
 class DevelopmentConfiguration(DefaultConfiguration):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///debug.db'
+    SQLALCHEMY_ECHO=True
 
 class TestingConfiguration(DefaultConfiguration):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+    # SQLALCHEMY_ECHO=True
 
 class DeploymentConfiguration(DefaultConfiguration):
-    pass
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///production.db'

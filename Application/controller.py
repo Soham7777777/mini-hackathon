@@ -1,16 +1,12 @@
 from flask import Blueprint, request, jsonify, Response
 from werkzeug import exceptions
-from enum import StrEnum
-from Application import db, models
+from Application import db, models, EnumStore
 from sqlalchemy.exc import IntegrityError
 
-class HTTPMethod(StrEnum):
-    GET = 'GET'
-    POST = 'POST'
-    PATCH = 'PATCH'
-    DELETE = 'DELETE'
+HTTPMethod = EnumStore.HTTPMethod
+Field = EnumStore.JSONSchema.User
 
-class UserView:
+class UserController:
     """
     A class controller for user model. Defines model attributes and registers a simple blueprint with a getAll route. 
     
@@ -20,10 +16,6 @@ class UserView:
     Functions:
         getAll() -> Response: A "getAll" api route for user model 
     """
-    class Attribute(StrEnum):
-        NAME = 'name'
-        EMAIL = 'email'
-        PASSWORD = 'password'
     
     blueprint = Blueprint('User',__name__,url_prefix='/api')
     
@@ -44,16 +36,16 @@ class UserView:
             users = db.session.query(models.User).all()
             return jsonify(users)
         
-        for value in UserView.Attribute:
+        for value in Field:
             if value not in request.form:
                 raise exceptions.BadRequest(f"{value} is not present in request")
         
             
         try:
             newUser = models.User(
-                name = request.form[UserView.Attribute.NAME],
-                email = request.form[UserView.Attribute.EMAIL],
-                password = request.form[UserView.Attribute.PASSWORD]
+                name = request.form[Field.NAME],
+                email = request.form[Field.EMAIL],
+                password = request.form[Field.PASSWORD]
             )
             db.session.add(newUser)
             db.session.commit()
@@ -62,4 +54,3 @@ class UserView:
         else:
             return Response(status=200)
     
-        # TODO: writing tests for application. Documenting all the stuff in template.

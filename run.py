@@ -1,7 +1,6 @@
-# production enviornment, with no debug mode
+# production mode
 from Application import create_app
 from instance import DeploymentConfiguration
 
-if __name__ == '__main__':
-    app = create_app(configClass=DeploymentConfiguration)
-    app.run()
+wsgiapp = create_app(configClass=DeploymentConfiguration)
+# gunicorn -w 8 'run:wsgiapp' 
