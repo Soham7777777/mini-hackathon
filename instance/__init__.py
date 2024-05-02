@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-class DefaultConfiguration:
+class FlaskDefaultConfiguration:
     DEBUG = False
     TESTING = False
     PROPAGATE_EXCEPTIONS = None
@@ -23,7 +23,10 @@ class DefaultConfiguration:
     MAX_CONTENT_LENGTH = None
     TEMPLATES_AUTO_RELOAD = None
     EXPLAIN_TEMPLATE_LOADING = False
-    MAX_COOKIE_SIZE = 4093    
+    MAX_COOKIE_SIZE = 4093
+
+class DefaultConfiguration(FlaskDefaultConfiguration):
+    SECRET_KEY = 'keep it secret'                           # type: ignore
     
 class DevelopmentConfiguration(DefaultConfiguration):
     DEBUG = True
