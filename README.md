@@ -32,3 +32,8 @@
 - Run `python debug.py` to run python on debug mode.
 
 - Alternatively, Run `gunicorn -w 8 'run:wsgiapp'` to run in production mode. This will not work for Windows as mentioned in above section.
+
+## Testing:
+---
+
+- `rm ./instance/*.db;coverage erase;coverage run --include='Application/**,instance/**,tests/**/test*.py' -m pytest -vv -rA;coverage report;coverage html`

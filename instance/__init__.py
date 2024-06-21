@@ -38,6 +38,7 @@ class TestingConfiguration(DefaultConfiguration):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
     # SQLALCHEMY_ECHO=True
+    PROPAGATE_EXCEPTIONS = False                            # type: ignore
 
 class DeploymentConfiguration(DefaultConfiguration):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///production.db'

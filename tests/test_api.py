@@ -1,27 +1,18 @@
 from Application import EnumStore
-from werkzeug.http import HTTP_STATUS_CODES
 from email_validator import validate_email, EmailNotValidError
 
-ErrorSchema = EnumStore.JSONSchema.Error
-UserSchema = EnumStore.JSONSchema.User
+NameFieldErros = EnumStore.NameField
+PasswordFieldErrors = EnumStore.PasswordField
 
-# we can use marshmellow to create objects and serialize it instead of creating dictionaries directly 
 class TestAPI:
-    """A class to test the API.
-    """
-    
     @staticmethod
     def testGetAllRoute(client):
-        inputUser = {
-            UserSchema.NAME.value : 'soham',
-            UserSchema.EMAIL.value : 'sohamjobanputra7@gmail.com',
-            UserSchema.PASSWORD.value : '12345678'            
-        }
+        inputUser = dict(name='soham', email='sohamjobanputra7@gmail.com', password='12345678')
         
         response = client.get('/', follow_redirects=True)
         assert response.request.path == '/api/users'
         
-        response = client.post('http://127.0.0.1:5000/api/users', data=inputUser)
+        response = client.post('http://127.0.0.1:5000/api/users', json=inputUser)
         assert response.status_code == 200
         
         response = client.get('http://127.0.0.1:5000/api/users')
@@ -39,62 +30,72 @@ class TestAPI:
     @staticmethod
     def testNameErrors(nameTestCase: tuple[str,str], client):
         username, errorMessage = nameTestCase
-        expectedError = {
-            ErrorSchema.NAME.value: HTTP_STATUS_CODES[400],
-            ErrorSchema.CODE.value: 400,
-            ErrorSchema.DESCRIPTION.value : errorMessage
-        }
-        inputUser: dict = {
-            UserSchema.NAME.value : username,
-            UserSchema.EMAIL.value : "sohamjobanputra7@gmail.com",
-            UserSchema.PASSWORD.value : "12345678"
-        }
-        
-        response = client.post('http://127.0.0.1:5000/api/users', data=inputUser)
+        inputUser = dict(name=username, email='sohamjobanputra7@gmail.com', password='12345678')
+        response = client.post('http://127.0.0.1:5000/api/users', json=inputUser)
         assert response.status_code == 400
-        assert response.json == expectedError
+        assert response.json['description'] == errorMessage
     
     
     @staticmethod
     def testPasswordErrors(passwordTestCase: tuple[str,str], client):
         password, errorMessage = passwordTestCase
-        expectedError = {
-            ErrorSchema.NAME.value: HTTP_STATUS_CODES[400],
-            ErrorSchema.CODE.value: 400,
-            ErrorSchema.DESCRIPTION.value : errorMessage
-        }
-        inputUser: dict = {
-            UserSchema.NAME.value : 'soham',
-            UserSchema.EMAIL.value : "sohamjobanputra7@gmail.com",
-            UserSchema.PASSWORD.value : password
-        }
-        
-        response = client.post('http://127.0.0.1:5000/api/users', data=inputUser)
+        inputUser = dict(name='soham', email='sohamjobanputra7@gmail.com', password=password)   
+        response = client.post('http://127.0.0.1:5000/api/users', json=inputUser)
         assert response.status_code == 400
-        assert response.json == expectedError
+        assert response.json['description'] == errorMessage
     
     
     @staticmethod
     def testEmailErrors(client):
         testEmail = "bad email@gmail.com"
-        inputUser = {
-            UserSchema.NAME.value : 'soham',
-            UserSchema.EMAIL.value : testEmail,
-            UserSchema.PASSWORD.value : '12345678'
-        }
-        
+        inputUser = dict(name='soham', email=testEmail, password='12345678')
+
         try:
             validate_email(testEmail,check_deliverability=False)
         except EmailNotValidError as e:
             expectedDescription = str(e)
-        
-        expectedError = {
-            ErrorSchema.NAME.value : HTTP_STATUS_CODES[400],
-            ErrorSchema.CODE.value : 400,
-            ErrorSchema.DESCRIPTION.value : expectedDescription
-        }
             
-        response = client.post('http://127.0.0.1:5000/api/users', data=inputUser)
+        response = client.post('http://127.0.0.1:5000/api/users', json=inputUser)
         assert response.status_code == 400
-        assert response.json == expectedError
-            
+        assert response.json['description'] == expectedDescription
+
+
+    @staticmethod
+    def testUniqueEmail(client):
+        user1 = dict(name='xyz123', email='sameemail@gmail.com', password='12345678')
+        user2 = dict(name='abc123', email='sameemail@gmail.com', password='aaaaaaaaa')
+        client.post('/api/users', json=user1)
+        response = client.post('/api/users', json=user2)
+        assert response.status_code == 400
+    
+    
+    @staticmethod
+    def testKeyError(client):
+        inputUser = dict(name='soham', email='sohamjobanputra7@gmail.com')
+        response = client.post('/api/users', json=inputUser)
+        assert response.status_code == 400
+        assert response.json['description'] == EnumStore.General.REQUIRED.value.format(key='password')
+    
+
+    @staticmethod
+    def testInternalServerError(client):
+        response = client.get('/throw_error/single')
+        assert response.status_code == 500
+        assert len(response.json) == 1
+        assert response.json['description'] == 'Single arg'
+
+        response = client.get('/throw_error/multi')
+        assert response.status_code == 500
+        assert len(response.json) == 1
+        assert response.json['description'] == 'Multi arg'.split()
+
+        description = (
+        "The server encountered an internal error and was unable to"
+        " complete your request. Either the server is overloaded or"
+        " there is an error in the application."
+        )
+
+        response = client.get('/throw_error/none')
+        assert response.status_code == 500
+        assert len(response.json) == 1
+        assert response.json['description'] == ''.join(description)
