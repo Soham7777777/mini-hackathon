@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, Response
 from werkzeug import exceptions
 from Application import db, models, get_expected_keys, ErrorMessage
 from sqlalchemy.exc import IntegrityError
@@ -14,7 +14,7 @@ def getAll() -> Response:
         users = db.session.query(models.User).all()
         return [user.serialize() for user in users] # type: ignore
     
-    name, email, password = get_expected_keys('name', 'email', 'password', json_request=request.json)
+    name, email, password = get_expected_keys('name', 'email', 'password', json_request=request.get_json())
         
     try:
         newUser = models.User(name=name,email=email,password=password)
