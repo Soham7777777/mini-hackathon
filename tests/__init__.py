@@ -1,7 +1,7 @@
-from Application import EnumStore
+from Application import ErrorMessage
 
-NameFieldErrors = EnumStore.NameField
-PasswordFieldErrors = EnumStore.PasswordField
+NameFieldErrors = ErrorMessage.NameField
+PasswordFieldErrors = ErrorMessage.PasswordField
 
 nameValidationTestCases: dict = {
     '  ' : NameFieldErrors.EMPTY.value,

@@ -1,11 +1,10 @@
 import pytest
-from Application import EnumStore
+from Application import ErrorMessage
 from Application.models import User
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
+from icecream import ic
 
-NameFieldErrors = EnumStore.NameField
-PasswordFieldErrors = EnumStore.PasswordField
+NameFieldErrors = ErrorMessage.NameField
+PasswordFieldErrors = ErrorMessage.PasswordField
 
 class TestUserModel:   
     @staticmethod
@@ -33,3 +32,12 @@ class TestUserModel:
         obj['email'] = 'bad email @example.com'
         with pytest.raises(User.ValidationError):
             User(**obj)
+    
+    @staticmethod
+    def testSerialization():
+        original_user = dict(name='soham',email='sohamjobanputra7@gmail.com',password='12345678')
+        user = User(**original_user).serialize()
+        ic(user)
+        assert type(user) == dict
+        original_user['id'] = None
+        assert original_user == user

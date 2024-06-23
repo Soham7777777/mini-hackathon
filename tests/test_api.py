@@ -1,8 +1,9 @@
-from Application import EnumStore
+from Application import ErrorMessage
 from email_validator import validate_email, EmailNotValidError
+from icecream import ic
 
-NameFieldErros = EnumStore.NameField
-PasswordFieldErrors = EnumStore.PasswordField
+NameFieldErros = ErrorMessage.NameField
+PasswordFieldErrors = ErrorMessage.PasswordField
 
 class TestAPI:
     @staticmethod
@@ -16,6 +17,7 @@ class TestAPI:
         assert response.status_code == 200
         
         response = client.get('http://127.0.0.1:5000/api/users')
+        ic(response.json)
         assert response.status_code == 200
 
         assert len(response.json) == 1
@@ -74,7 +76,7 @@ class TestAPI:
         inputUser = dict(name='soham', email='sohamjobanputra7@gmail.com')
         response = client.post('/api/users', json=inputUser)
         assert response.status_code == 400
-        assert response.json['description'] == EnumStore.General.REQUIRED.value.format(key='password')
+        assert response.json['description'] == ErrorMessage.General.REQUIRED.value.format(key='password')
     
 
     @staticmethod

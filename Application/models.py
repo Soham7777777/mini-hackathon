@@ -1,10 +1,10 @@
-from Application import db, EnumStore
+from Application import db, ErrorMessage
 from sqlalchemy.orm import Mapped, mapped_column, validates
-from typing import Annotated, Type
+from typing import Annotated
 from email_validator import validate_email, EmailNotValidError
 
-NameFieldErrors = EnumStore.NameField
-PasswordFieldErrors = EnumStore.PasswordField
+NameFieldErrors = ErrorMessage.NameField
+PasswordFieldErrors = ErrorMessage.PasswordField
 
 
 class User(db.Model): # type: ignore

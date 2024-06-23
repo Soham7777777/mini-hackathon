@@ -5,7 +5,14 @@ from werkzeug import exceptions
 from enum import StrEnum
 
 class Base(MappedAsDataclass, DeclarativeBase):
-    pass
+    def serialize(self) -> dict:
+        table = self.__table__
+        result = {}
+        for col in table.columns:
+            col_name = str(col).split('.')[-1]
+            result[col_name] = getattr(self, col_name)
+        # return json.dumps(result, default=str) # for stringification
+        return result
 
 db: SQLAlchemy = SQLAlchemy(model_class=Base)
 
@@ -43,7 +50,7 @@ def create_app(*,configClass: type) -> Flask:
     return app
 
 
-class EnumStore:
+class ErrorMessage:
     class General(StrEnum):
         REQUIRED = 'The key {key} is required'
 
@@ -68,6 +75,6 @@ def get_expected_keys(*keys: str, json_request = {}) -> list[str]:
         try:
             vals.append(json_request[key])
         except KeyError:
-            raise exceptions.BadRequest(EnumStore.General.REQUIRED.value.format(key=key))
+            raise exceptions.BadRequest(ErrorMessage.General.REQUIRED.value.format(key=key))
     return vals
 
