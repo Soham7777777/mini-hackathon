@@ -76,5 +76,5 @@ def get_expected_keys(*keys: str, json_request = {}) -> list[str]:
             vals.append(json_request[key])
         except KeyError:
             raise exceptions.BadRequest(ErrorMessage.General.REQUIRED.value.format(key=key))
-    return vals
+    return vals if len(vals) > 1 else vals[0]
 
