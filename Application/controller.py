@@ -14,6 +14,7 @@ class UserSchema(Schema):
     email = CustomEmail(required=True)
     password = CustomString(required=True)
 
+    ## TODO: moving this to base schema
     @pre_load
     def preprocessor(self, data, **kwargs):
         if type(data) != dict : raise ValidationError('Object expected', 'schema')
