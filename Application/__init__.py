@@ -61,3 +61,11 @@ class CustomEmail(CustomString):
             return emailinfo.normalized
         except email_validator.EmailNotValidError as e:
             raise ValidationError(str(e)) from e 
+
+
+# Sources of Truths (code that needs to be tested by looking with eyes):
+# Application.create_app function
+# instance package
+# Model class configurations
+# Schema class configurations
+# Blueprint configurations
