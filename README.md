@@ -37,3 +37,15 @@
 ---
 
 - `rm ./instance/*.db;coverage erase;coverage run --include='Application/**,instance/**,tests/**/test*.py' -m pytest -vv -rA;coverage report;coverage html`
+
+
+## Testing guide by Soham:
+---
+
+- JUST DON'T TEST DAMM CONFIGS PARTS OF CODE BECAUSE THEY ARE THE ONLY SOURCE OF TRUTH, DON'T TEST CODE SIMPLE AS THESE:
+    - field configs of schema classes, model cofigs from mapped classes, app configs from `create_app()` and instance package, and blueprint configs from Blueprint objects
+
+- ACHIEVE 100% COVERAGE BUT IT DOES NOT MEAN BUGFREE RATHER ITS REQUIREMENT, THE COVERAGE BOUNDRY MUST INCLUDE TESTING CODE AS WELL. 
+
+- FIRST WRITE TESTING CODE AND CONFIG CODE THEN WRITE APPLICAITON CODE
+    - write testing code for code which has testcases and code that changes other things, write testing code to check if it behaves in the way you wanted. 

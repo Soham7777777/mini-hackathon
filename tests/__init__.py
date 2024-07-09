@@ -1,11 +1,11 @@
-from Application import ErrorMessage
+from Application.controller import UserSchema
 
-NameFieldErrors = ErrorMessage.NameField
-PasswordFieldErrors = ErrorMessage.PasswordField
+NameFieldErrors = UserSchema.NameFieldErrors
+PasswordFieldErrors = UserSchema.PasswordFieldErrors
 
 nameValidationTestCases: dict = {
-    '  ' : NameFieldErrors.EMPTY.value,
-    ' l' : NameFieldErrors.LENGTH.value,
+    '       ' : NameFieldErrors.LENGTH.value,
+    '       l  ' : NameFieldErrors.LENGTH.value,
     'xyz' : NameFieldErrors.LENGTH.value,
     'x'*31 : NameFieldErrors.LENGTH.value,
     'usernamewith$pecia|c@racter' : NameFieldErrors.CONTAIN.value,
@@ -15,9 +15,9 @@ nameValidationTestCases: dict = {
 }
 
 passwordValidationTestCases: dict = {
-    '' : PasswordFieldErrors.EMPTY,
-    '  ' : PasswordFieldErrors.EMPTY,
-    '123' : PasswordFieldErrors.LENGTH,
-    '12345678901234567' : PasswordFieldErrors.LENGTH,
-    'contains space' : PasswordFieldErrors.SPACE
+    '' : PasswordFieldErrors.LENGTH.value,
+    '    ' : PasswordFieldErrors.LENGTH.value,
+    '   123   ' : PasswordFieldErrors.LENGTH.value,
+    '12345678901234567' : PasswordFieldErrors.LENGTH.value,
+    'contains space' : PasswordFieldErrors.SPACE.value
 }

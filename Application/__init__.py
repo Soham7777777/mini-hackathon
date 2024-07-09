@@ -2,17 +2,11 @@ from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import MappedAsDataclass, DeclarativeBase
 from werkzeug import exceptions
-from enum import StrEnum
+from marshmallow import ValidationError, fields
+import email_validator
 
 class Base(MappedAsDataclass, DeclarativeBase):
-    def serialize(self) -> dict:
-        table = self.__table__
-        result = {}
-        for col in table.columns:
-            col_name = str(col).split('.')[-1]
-            result[col_name] = getattr(self, col_name)
-        # return json.dumps(result, default=str) # for stringification
-        return result
+    pass
 
 db: SQLAlchemy = SQLAlchemy(model_class=Base)
 
@@ -21,10 +15,10 @@ def create_app(*,configClass: type) -> Flask:
     app.config.from_object(configClass())
 
     import Application.errorhandler as errhndl
-    import Application.models as models
     app.register_error_handler(exceptions.HTTPException, errhndl.jsonify_default_errors)
-    app.register_error_handler(models.User.ValidationError, errhndl.handle_validation_errors)
+    app.register_error_handler(ValidationError, errhndl.handle_validation_errors)
 
+    import Application.models
     db.init_app(app)
     with app.app_context():
         db.create_all()    
@@ -32,9 +26,6 @@ def create_app(*,configClass: type) -> Flask:
     from Application.controller import bp
     app.register_blueprint(bp)
     
-    @app.route('/')
-    def home():
-        return redirect(url_for('User.getAll'))
     
     if app.testing:
         @app.route('/throw_error/<value>')
@@ -45,36 +36,28 @@ def create_app(*,configClass: type) -> Flask:
                 raise Exception(*('Multi arg'.split()))
             elif value == 'none':
                 raise Exception()
-
+            
+    app.add_url_rule('/', endpoint='User.get_all')
     
     return app
 
-
-class ErrorMessage:
-    class General(StrEnum):
-        REQUIRED = 'The key {key} is required'
-
-    class NameField(StrEnum):
-        EMPTY = 'Username cannot be empty string'
-        LENGTH = 'Username must have minimum length of 4 and maximum of 30'
-        STARTSWITH = 'Username cannot start with a digit or underscore'
-        CONTAIN = 'Username can only contain lowercase characters or digits or underscores'
+# TODO: adding length support: flask-wtf type validation and processing
+class CustomString(fields.String):
+    def _serialize(self, value, attr, obj, **kwargs):
+        return super()._serialize(value, attr, obj, **kwargs)
     
-    class PasswordField(StrEnum):
-        EMPTY = 'Password cannot be empty string'
-        LENGTH = 'Password must have minimum length of 8 and maximum of 16'
-        SPACE = 'Password cannot contain any white space'
-    
-    class EmailField(StrEnum):
-        EXISTS = 'The email {email} already exists in database'
+    def _deserialize(self, value, attr, data, **kwargs):
+        if type(value) != str: raise ValidationError('The type must be string', attr)
+        return value.strip()
 
+class CustomEmail(CustomString):
+    def _serialize(self, value, attr, obj, **kwargs):
+        return super()._serialize(value, attr, obj, **kwargs)
 
-def get_expected_keys(*keys: str, json_request = {}) -> list[str]:
-    vals = []
-    for key in keys:
+    def _deserialize(self, value, attr, data, **kwargs):
+        value = super()._deserialize(value, attr, data, **kwargs)
         try:
-            vals.append(json_request[key])
-        except KeyError:
-            raise exceptions.BadRequest(ErrorMessage.General.REQUIRED.value.format(key=key))
-    return vals if len(vals) > 1 else vals[0]
-
+            emailinfo = email_validator.validate_email(value)
+            return emailinfo.normalized
+        except email_validator.EmailNotValidError as e:
+            raise ValidationError(str(e)) from e 

@@ -1,6 +1,6 @@
-from Application.models import User
 from werkzeug import exceptions
 from typing import cast
+from marshmallow import ValidationError
 
 def jsonify_default_errors(e: exceptions.HTTPException) -> tuple[dict, int]:
         code: int
@@ -21,5 +21,5 @@ def jsonify_default_errors(e: exceptions.HTTPException) -> tuple[dict, int]:
         data = dict(description=description)
         return data, code
 
-def handle_validation_errors(e: User.ValidationError) -> tuple[dict, int]:
-     return jsonify_default_errors(exceptions.BadRequest(str(e)))
+def handle_validation_errors(e: ValidationError) -> tuple[dict, int]:
+    return dict(description=e.messages), 422
