@@ -1,6 +1,11 @@
 from datetime import timedelta
+import json
+from abc import ABC
 
-class FlaskDefaultConfiguration:
+with open('./instance/secrets.json', 'r') as f:
+    secrets = json.load(f)
+
+class IFlaskDefaultConfiguration(ABC):
     DEBUG = False
     TESTING = False
     PROPAGATE_EXCEPTIONS = None
@@ -25,20 +30,28 @@ class FlaskDefaultConfiguration:
     EXPLAIN_TEMPLATE_LOADING = False
     MAX_COOKIE_SIZE = 4093
 
-class DefaultConfiguration(FlaskDefaultConfiguration):
-    SECRET_KEY = 'keep it secret'                           # type: ignore
-    
-class DevelopmentConfiguration(DefaultConfiguration):
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///debug.db'
+class IApplicationConfiguration(IFlaskDefaultConfiguration):
+    SECRET_KEY = secrets['key'] # type: ignore
+    DEBUG=True
+    TESTING=True
+
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///default.db'
     SQLALCHEMY_ECHO=True
+    
+class Development(IApplicationConfiguration):
+    TESTING=False
 
-class TestingConfiguration(DefaultConfiguration):
-    TESTING = True
+class Testing(IApplicationConfiguration):
+    DEBUG=False
+    PROPAGATE_EXCEPTIONS = False # type: ignore
+
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
-    # SQLALCHEMY_ECHO=True
-    PROPAGATE_EXCEPTIONS = False                            # type: ignore
+    SQLALCHEMY_ECHO=False
 
-class DeploymentConfiguration(DefaultConfiguration):
+class Deployment(IApplicationConfiguration):
+    DEBUG=False
+    TESTING=False
+
     SQLALCHEMY_DATABASE_URI = 'sqlite:///production.db'
+    SQLALCHEMY_ECHO=False
+

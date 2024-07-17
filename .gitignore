@@ -6,7 +6,7 @@ __pycache__/
 .mypy_cache
 *_cache
 
-# instance/
+instance/secrets.json
 
 .pytest_cache/
 .coverage
@@ -16,10 +16,10 @@ dist/
 build/
 *.egg-info/
 
-# for experimenting with code, writing notes etc...
-temp.*
-temp_*
-
 .vscode
 *.db
 *.sqlite
+
+# for experimenting with code, writing notes etc...
+temp.*
+temp_*

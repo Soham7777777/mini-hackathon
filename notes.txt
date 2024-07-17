@@ -1,2 +1,0 @@
-- Testing bp.before_request and bp.after_request for loading and dumping schema, for that getting partials from decorator functions.
-- assing normalized email in postload function
