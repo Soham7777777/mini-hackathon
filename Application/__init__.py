@@ -1,6 +1,13 @@
 from flask import Flask
 from werkzeug import exceptions
 from instance import IApplicationConfiguration
+from sqlalchemy.orm import MappedAsDataclass, DeclarativeBase
+from flask_sqlalchemy import SQLAlchemy
+
+class Base(MappedAsDataclass, DeclarativeBase):
+    pass
+
+db: SQLAlchemy = SQLAlchemy(model_class=Base)
 
 def create_app(config: IApplicationConfiguration, /) -> Flask:
     app: Flask = Flask(__name__, instance_relative_config=True)
@@ -10,9 +17,14 @@ def create_app(config: IApplicationConfiguration, /) -> Flask:
     app.register_error_handler(exceptions.HTTPException, errhndl.jsonify_default_errors)
     app.register_error_handler(exceptions.NotFound, errhndl.handle_notfound_errors)
     
+    db.init_app(app)
+    from Application.models import User
+    with app.app_context():
+        db.create_all()
+
     @app.get('/')
     def home():
-        return "Hello, World!"
+        return User.query.all()
 
     if app.testing:
         @app.get('/throw_error/<value>')
