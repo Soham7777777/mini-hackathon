@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border: 1px solid red;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Product Form</h1>
+
+    <a href="{{ url_for('show_products') }}">See list</a>
+    <hr>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('home') }}">
+        {{ form.hidden_tag() }} <!-- CSRF token for security -->
+
+        <div class="form-group {{ 'error' if form.name.errors }}">
+            <label for="name">Name:</label>
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group {{ 'error' if form.price.errors }}">
+            <label for="price">Price:</label>
+            {{ form.price(class="form-control") }}
+            {% for error in form.price.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group {{ 'error' if form.category.errors }}">
+            <label for="category">Category:</label>
+            {{ form.category(class="form-control") }}
+            {% for error in form.category.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group {{ 'error' if form.rating.errors }}">
+            <label for="rating">Rating (1-5):</label>
+            {{ form.rating(class="form-control") }}
+            {% for error in form.rating.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group {{ 'error' if form.description.errors }}">
+            <label for="description">Description:</label>
+            {{ form.description(class="form-control") }}
+            {% for error in form.description.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group {{ 'error' if form.company.errors }}">
+            <label for="company">Company:</label>
+            {{ form.company(class="form-control") }}
+            {% for error in form.company.errors %}
+            <div class="error-message">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</body>
+
+</html>

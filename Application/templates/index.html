@@ -1,36 +1,111 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HTMX Learning</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='./bootstrap-5.3.3-dist/css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='./favicon.svg') }}">
-  </head>
-  <body>
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
 
-    <h1> Hello, World! </h1> 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
 
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
 
+    th {
+      background-color: #f4f4f4;
+    }
 
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
+    .heading {
+      margin-bottom: 20px;
+    }
 
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
 
+    .alert-success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
 
-    <script>
-      document.addEventListener("DOMContentLoaded", (event)=>{
-        document.body.addEventListener('htmx:beforeSwap', function(evt){
-          if(evt.detail.xhr.status === 422) {
-            evt.detail.shouldSwap = true;
-            evt.detail.isError = false;
-          }
-        })
-      })
-    </script>
-    <script src="{{ url_for('static', filename='htmx.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='./bootstrap-5.3.3-dist/js/bootstrap.bundle.js') }}"></script>
-  </body>
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="heading">Product List</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <a href="{{ url_for('home') }}">Go back to form</a>
+    <hr>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Category</th>
+          <th>Rating</th>
+          <th>Description</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>${{ product.price }}</td>
+          <td>{{ product.category }}</td>
+          <td>{{ product.rating if product.rating is not none else 'N/A' }}</td>
+          <td>{{ product.description if product.description else 'No description' }}</td>
+          <td>{{ product.company if product.company else 'No company' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+
 </html>
