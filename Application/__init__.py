@@ -11,10 +11,6 @@ db: SQLAlchemy = SQLAlchemy(model_class=Base)
 def create_app(config: IApplicationConfiguration, /) -> Flask:
     app: Flask = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config)
-
-    # import Application.error_handlers as errhndl
-    # app.register_error_handler(exceptions.HTTPException, errhndl.jsonify_default_errors)
-    # app.register_error_handler(exceptions.NotFound, errhndl.handle_notfound_errors)
     
     db.init_app(app)
     from Application.models import Product
